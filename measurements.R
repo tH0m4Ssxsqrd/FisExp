@@ -1,6 +1,17 @@
 # File:   measurements.R
 
-# INSTALL AND LOAD PACKAGES ################################
+##########################################
+#This notebook is supposed to help calculate the volume, density and the associated error that comes from the experiment and pure randomness.
+#Este programa pretende ajudar a calcular o volume, densidade e erro associado ao processo experimental que vem de fatores aleatórios.
+
+#This notebook was written to be used as such. Do read and understand what each part does, and load the required packages,
+#datasets and functions in order to calculate whatever you want to.
+
+#Este programa foi escrito para ser rodado como um notebook. Leia o programa e tente entender o que cada parte faz, lembrando
+#de carregar os pacotes, datasets e funções necessárias para calcular o que quiser.
+##########################################
+
+# INSTALL AND LOAD PACKAGES ##########################################
 
 # INSTALLS PACMAN IF IT ISN'T INSTALLED ALREADY
 if (!require("pacman")) install.packages("pacman")
@@ -13,6 +24,9 @@ paqA <- import("./Datasets/paqA.csv")
 paqB <- import("./Datasets/paqB.csv")
 paqD <- import("./Datasets/paqD.csv")
 micH <- import("./Datasets/micH.csv")
+massa <- 123 #MEASURED MASS
+erropaq <- 0.005 #PRECISION OF THE CALIPER RULER IN CM
+erromic <- 0.001 #PRECISION OF THE MICROMETER IN CM
 
 # VIEW DATA
 ?View
@@ -49,29 +63,73 @@ boxplot(paqD$Size,
 # CALCULATES STANDARD ERROR
 
 ## FUNCTION CALCULATES STANDARD ERROR FOR GIVEN VECTOR
-std <- function(a) sd(a) / sqrt(length(a))
 
-## THIS BLOCK CALCULATES THE SE FOR THE DIFFERENT DATASETS
-errA <- std(c(3.6350, 3.6100, 3.6350, 3.6100, 3.6350, 3.6110, 3.6100, 3.6350, 3.6100, 3.6300))
+std <- function(a) sd(a) / sqrt(length(a)) #STANDARD ERROR
+sde <- function(a) sd(a) #STANDARD DEVIATION
+med <- function(a) mean(a) #ARITHMETHIC MEAN
+
+## THIS BLOCK CALCULATES THE SE, SD AND MEAN FOR THE DIFFERENT DATASETS
+
+A <- c(3.6350, 3.6100, 3.6350, 3.6100, 3.6350, 3.6110, 3.6100, 3.6350, 3.6100, 3.6300)
+B <- c(4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600)
+D <- c(1.7200, 1.7200, 1.7200, 1.7200, 1.7100, 1.7050, 1.7200, 1.7200, 1.7000, 1.7200)
+H <- c(1.2525, 1.2500, 1.2499, 1.2499, 1.2498, 1.2509, 1.2489, 1.2505, 1.2498, 1.2510)
+
+#FOR THE A SIDE
+errA <- std(A)
+sdeA <- sde(A)
+medA <- med(A)
 print(errA)
+print(sdeA)
+print(medA)
 
-errB <- std(c(4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600))
+#FOR THE B SIDE
+errB <- std(B)
+sdeB <- sde(B)
+medB <- med(B)
 print(errB)
+print(sdeB)
+print(medB)
 
-errD <- std(c(1.7200, 1.7200, 1.7200, 1.7200, 1.7100, 1.7050, 1.7200, 1.7200, 1.7000, 1.7200))
+#FOR THE DIAMETER
+errD <- std(D)
+sdeD <- sde(D)
+medD <- med(D)
 print(errD)
+print(sdeD)
+print(medD)
 
-errH <- std(c(1.2525, 1.2500, 1.2499, 1.2499, 1.2498, 1.2509, 1.2489, 1.2505, 1.2498, 1.2510))
+#FOR THE HEIGHT
+errH <- std(H)
+sdeH <- sde(H)
+medH <- med(H)
 print(errH)
+print(sdeH)
+print(medH)
 
 
-# UNUSED VECTORS
-#paqA <- c(3.6350, 3.6100, 3.6350, 3.6100, 3.6350, 3.6110, 3.6100, 3.6350, 3.6100, 3.6300)
-#paqB <- c(4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600, 4.1600)
-#paqD <- c(1.7200, 1.7200, 1.7200, 1.7200, 1.7100, 1.7050, 1.7200, 1.7200, 1.7000, 1.7200)
-#micH <- c(1.2525, 1.2500, 1.2499, 1.2499, 1.2498, 1.2509, 1.2489, 1.2505, 1.2498, 1.2510)
+#FINAL CALCULATIONS AND OUTPUT
 
+##EXPERIMENTAL ERROR
+errAt <- errA + erropaq
+errBt <- errB + erropaq
+errDt <- errD + erropaq
+errHt <- errH + erromic
 
+errvol <- (vol * sqrt(((errAt/medA)^2)+((errBt/medB)^2)+((errHt/medH)^2))) + (2*((errDt/medD)^2) + ((errHt/medH)^2))
+
+errden <- (1/vol) + (massa/((vol)^2))*errvol
+
+##VOLUME
+volF <- function(a, b, d, h) (a*b*h - (pi*((d/2)^2)*h))
+vol <- volF(medA, medB, medD, medH)
+print(paste("O volume da peça é de", vol, "±", errvol, "cm³"))
+
+#DENSITY
+den <- massa/vol
+print(paste("A densidade da peça é de", den, "±", errden, "g/cm³"))
+
+##########################################
 # CLEAR ENVIRONMNENT
 rm(list = ls())
 
