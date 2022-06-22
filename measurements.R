@@ -25,8 +25,8 @@ paqB <- import("./Datasets/paqB.csv")
 paqD <- import("./Datasets/paqD.csv")
 micH <- import("./Datasets/micH.csv")
 massa <- 123 #MEASURED MASS
-erropaq <- 0.005 #PRECISION OF THE CALIPER RULER IN CM
-erromic <- 0.001 #PRECISION OF THE MICROMETER IN CM
+erropaq <- 0.0025 #PRECISION OF THE CALIPER RULER IN CM
+erromic <- 0.0005 #PRECISION OF THE MICROMETER IN CM
 
 # VIEW DATA
 ?View
@@ -116,13 +116,17 @@ errBt <- errB + erropaq
 errDt <- errD + erropaq
 errHt <- errH + erromic
 
-errvol <- (vol * sqrt(((errAt/medA)^2)+((errBt/medB)^2)+((errHt/medH)^2))) + (2*((errDt/medD)^2) + ((errHt/medH)^2))
+errvol <- (volPt * sqrt(((errAt/medA)^2)+((errBt/medB)^2)+((errHt/medH)^2))) + (volCt*sqrt((2*((errDt/medD)^2) + ((errHt/medH)^2))))
 
 errden <- (1/vol) + (massa/((vol)^2))*errvol
 
 ##VOLUME
-volF <- function(a, b, d, h) (a*b*h - (pi*((d/2)^2)*h))
-vol <- volF(medA, medB, medD, medH)
+volP <- function(a, b, h) (a*b*h)
+volC <- function(h, d) (pi*((d/2)^2)*h)
+volPt <- volP(medA, medB, medH)
+volCt <- volC(medH, medD)
+vol <- volPt - volCt
+
 print(paste("O volume da peça é de", vol, "±", errvol, "cm³"))
 
 #DENSITY
@@ -141,3 +145,4 @@ cat("\014")  # ctrl+L
 
 # CLEAR PLOT (IF THERE IS A PLOT)
 dev.off()
+
