@@ -43,20 +43,26 @@ plot(micH)
 
 # GENERATES BOX PLOTS
 boxplot(paqA$Size,
-        main = "Comprimento do lado A em cm",
-        varwidth = T,
+        main = "Variação das medidas de A",
+        xlab = "Em cm",
         horizontal = TRUE
 )
 
 boxplot(paqB$Size,
-        main = "Comprimento do lado B em cm",
-        varwidth = T,
+        main = "Variação das medidas de B",
+        xlab = "Em cm",
         horizontal = TRUE
 )
 
 boxplot(paqD$Size,
-        main = "Diâmetro do furo na peça em cm",
-        varwidth = T,
+        main = "Variação do diâmetro",
+        xlab = "Em cm",
+        horizontal = TRUE
+)
+
+boxplot(micH$Size,
+        main = "Variação das medidas de H",
+        xlab = "Em cm",
         horizontal = TRUE
 )
 
@@ -116,16 +122,13 @@ errBt <- errB + erropaq
 errDt <- errD + erropaq
 errHt <- errH + erromic
 
-errvol <- (volPt * sqrt(((errAt/medA)^2)+((errBt/medB)^2)+((errHt/medH)^2))) + (volCt*sqrt((2*((errDt/medD)^2) + ((errHt/medH)^2))))
+errvol <- abs(medB*medH)*errAt + abs(medA*medH)*errBt + abs(medA*medB - pi*((medD/2)^2))*errHt + abs((pi * medD * medH)/2)*errDt
 
 errden <- (1/vol) + (massa/((vol)^2))*errvol
 
 ##VOLUME
-volP <- function(a, b, h) (a*b*h)
-volC <- function(h, d) (pi*((d/2)^2)*h)
-volPt <- volP(medA, medB, medH)
-volCt <- volC(medH, medD)
-vol <- volPt - volCt
+volF <- function(a, b, d, h) ((a*b -pi*((d/2)^2))*h)
+vol <- volF(medA, medB, medD, medH)
 
 print(paste("O volume da peça é de", vol, "±", errvol, "cm³"))
 
